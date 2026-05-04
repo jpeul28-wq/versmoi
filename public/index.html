@@ -978,17 +978,10 @@ function hidePaywall() {
 }
 
 function handleUpgrade(plan) {
-  // In production: redirect to Stripe / payment processor
-  const prices = { essentiel: '4,90 €/mois', illimite: '11,90 €/mois' };
-  const confirmed = confirm(
-    `Tu vas être redirigé vers le paiement sécurisé.\n\nPlan : ${plan === 'illimite' ? 'Illimité' : 'Essentiel'}\nTarif : ${prices[plan]}\n\nPour cette démo, le mode premium est simulé.`
-  );
-  if (confirmed) {
-    isPremium = true;
-    messagesUsed = 0;
-    hidePaywall();
-    updateLimitUI();
-    addMessage('reflet', 'Bienvenue dans VersMoi sans limites. Ton espace de dialogue t\'appartient entièrement.');
+  if (plan === 'essentiel') {
+    window.location.href = 'https://buy.stripe.com/aFa28r5AX3SW4Xz38R38400';
+  } else {
+    window.location.href = 'https://buy.stripe.com/5kQ7sLfbx6142PrbFn38401';
   }
 }
 
