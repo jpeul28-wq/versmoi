@@ -2,7 +2,9 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>VersMoi — Ton Reflet Intérieur</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,20 +25,28 @@
     --shadow: rgba(26,20,16,0.08);
     --radius: 2px;
     --radius-lg: 6px;
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-top: env(safe-area-inset-top, 0px);
   }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+  }
 
   body {
     font-family: 'DM Sans', sans-serif;
     background: var(--parchment);
     color: var(--ink);
-    min-height: 100vh;
     overflow-x: hidden;
+    /* Empêche le zoom sur double-tap iOS */
+    touch-action: manipulation;
   }
 
   /* ─── SCREENS ─── */
-  .screen { display: none; min-height: 100vh; }
+  .screen { display: none; height: 100%; min-height: 100%; }
   .screen.active { display: flex; flex-direction: column; }
 
   /* ─── LANDING ─── */
@@ -47,11 +57,15 @@
     justify-content: center;
     align-items: center;
     text-align: center;
-    padding: 2rem;
+    padding: 2rem 1.5rem;
+    padding-top: calc(2rem + var(--safe-top));
+    padding-bottom: calc(2rem + var(--safe-bottom));
+    overflow-y: auto;
+    min-height: 100%;
   }
 
   .landing-bg {
-    position: absolute; inset: 0;
+    position: fixed; inset: 0;
     background: radial-gradient(ellipse at 30% 20%, rgba(201,151,58,0.12) 0%, transparent 60%),
                 radial-gradient(ellipse at 70% 80%, rgba(139,58,42,0.10) 0%, transparent 55%);
     pointer-events: none;
@@ -60,12 +74,12 @@
   .landing-ornament {
     width: 80px; height: 1px;
     background: linear-gradient(90deg, transparent, var(--gold), transparent);
-    margin: 1.5rem auto;
+    margin: 1.25rem auto;
   }
 
   .landing-tagline {
     font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(2.8rem, 8vw, 5.5rem);
+    font-size: clamp(2.4rem, 10vw, 5.5rem);
     font-weight: 300;
     font-style: italic;
     letter-spacing: -0.02em;
@@ -81,11 +95,10 @@
 
   .landing-sub {
     font-family: 'DM Sans', sans-serif;
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     font-weight: 300;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--ink-muted);
     color: rgba(250,246,240,0.55);
     position: relative; z-index: 1;
     margin-top: 0.5rem;
@@ -93,12 +106,12 @@
 
   .landing-desc {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 1.25rem;
+    font-size: 1.15rem;
     font-weight: 300;
     line-height: 1.8;
     color: rgba(250,246,240,0.75);
     max-width: 520px;
-    margin: 0 auto 2.5rem;
+    margin: 0 auto 2rem;
     position: relative; z-index: 1;
   }
 
@@ -107,46 +120,46 @@
     background: var(--gold);
     color: var(--ink);
     font-family: 'DM Sans', sans-serif;
-    font-size: 0.82rem;
+    font-size: 0.85rem;
     font-weight: 500;
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    padding: 0.9rem 2.5rem;
+    padding: 1rem 2.5rem;
     border: none;
     border-radius: var(--radius);
     cursor: pointer;
     transition: background 0.2s, transform 0.15s;
     position: relative; z-index: 1;
     text-decoration: none;
+    min-height: 48px;
   }
-  .btn-primary:hover { background: var(--gold-light); transform: translateY(-1px); }
-  .btn-primary:active { transform: scale(0.98); }
+  .btn-primary:active { transform: scale(0.97); background: var(--gold-light); }
 
   .btn-ghost {
     display: inline-block;
     background: transparent;
     color: rgba(250,246,240,0.6);
     font-family: 'DM Sans', sans-serif;
-    font-size: 0.82rem;
+    font-size: 0.85rem;
     font-weight: 400;
     letter-spacing: 0.1em;
-    padding: 0.6rem 1.5rem;
+    padding: 0.75rem 1.5rem;
     border: 0.5px solid rgba(250,246,240,0.2);
     border-radius: var(--radius);
     cursor: pointer;
     transition: all 0.2s;
     margin-top: 0.75rem;
+    min-height: 48px;
   }
-  .btn-ghost:hover { border-color: rgba(250,246,240,0.5); color: rgba(250,246,240,0.9); }
 
   .landing-features {
-    display: flex; gap: 2rem;
+    display: flex; gap: 1.25rem;
     flex-wrap: wrap; justify-content: center;
-    margin: 2rem 0;
+    margin: 1.75rem 0;
     position: relative; z-index: 1;
   }
   .feature-pill {
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     letter-spacing: 0.08em;
     color: rgba(250,246,240,0.45);
     display: flex; align-items: center; gap: 6px;
@@ -162,14 +175,18 @@
     background: var(--cream);
     justify-content: center;
     align-items: center;
-    padding: 2rem;
+    padding: 1.5rem;
+    padding-top: calc(1.5rem + var(--safe-top));
+    padding-bottom: calc(1.5rem + var(--safe-bottom));
+    overflow-y: auto;
   }
   .disclaimer-card {
     max-width: 520px;
+    width: 100%;
     background: white;
     border: 0.5px solid rgba(26,20,16,0.12);
     border-radius: var(--radius-lg);
-    padding: 2.5rem;
+    padding: 2rem 1.5rem;
     box-shadow: 0 4px 24px var(--shadow);
   }
   .disclaimer-icon {
@@ -177,7 +194,7 @@
     border: 1px solid var(--gold);
     border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
     font-size: 1.1rem;
     color: var(--gold);
   }
@@ -201,42 +218,45 @@
   .btn-dark {
     background: var(--ink); color: var(--parchment);
     font-family: 'DM Sans', sans-serif;
-    font-size: 0.82rem; font-weight: 500;
+    font-size: 0.85rem; font-weight: 500;
     letter-spacing: 0.1em; text-transform: uppercase;
-    padding: 0.85rem 1.5rem; border: none;
+    padding: 1rem 1.5rem; border: none;
     border-radius: var(--radius); cursor: pointer;
     transition: background 0.2s;
     text-align: center;
+    min-height: 48px;
   }
-  .btn-dark:hover { background: #2d2520; }
+  .btn-dark:active { background: #2d2520; }
   .btn-link {
     background: none; border: none;
-    font-size: 0.8rem; color: var(--ink-muted);
+    font-size: 0.85rem; color: var(--ink-muted);
     cursor: pointer; text-decoration: underline;
-    text-underline-offset: 3px; padding: 0.25rem;
+    text-underline-offset: 3px; padding: 0.5rem;
     font-family: 'DM Sans', sans-serif;
     transition: color 0.2s;
+    min-height: 44px;
+    display: flex; align-items: center; justify-content: center;
   }
-  .btn-link:hover { color: var(--ink); }
 
   /* ─── PROFILE FORM ─── */
   #screen-profile {
     background: var(--parchment-warm);
-    justify-content: center;
-    align-items: center;
-    padding: 2rem;
+    overflow-y: auto;
+    padding: 1.5rem;
+    padding-top: calc(1.5rem + var(--safe-top));
+    padding-bottom: calc(1.5rem + var(--safe-bottom));
   }
-  .profile-wrap { max-width: 500px; width: 100%; }
-  .profile-header { margin-bottom: 2rem; }
+  .profile-wrap { max-width: 500px; width: 100%; margin: 0 auto; }
+  .profile-header { margin-bottom: 1.5rem; }
   .profile-header h2 {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 2rem; font-weight: 400; font-style: italic;
+    font-size: 1.8rem; font-weight: 400; font-style: italic;
     color: var(--ink);
     margin-bottom: 0.4rem;
   }
   .profile-header p { font-size: 0.875rem; color: var(--ink-muted); }
 
-  .form-group { margin-bottom: 1.25rem; }
+  .form-group { margin-bottom: 1.1rem; }
   .form-label {
     display: block; font-size: 0.72rem;
     letter-spacing: 0.12em; text-transform: uppercase;
@@ -247,15 +267,17 @@
     background: rgba(255,255,255,0.7);
     border: 0.5px solid rgba(26,20,16,0.2);
     border-radius: var(--radius);
-    padding: 0.75rem 1rem;
+    padding: 0.85rem 1rem;
     font-family: 'DM Sans', sans-serif;
-    font-size: 0.9rem; color: var(--ink);
+    font-size: 16px; /* Empêche le zoom iOS */
+    color: var(--ink);
     transition: border-color 0.2s;
     outline: none;
+    -webkit-appearance: none;
   }
   .form-control:focus { border-color: var(--gold); }
   .form-control::placeholder { color: rgba(74,63,53,0.35); }
-  textarea.form-control { resize: vertical; min-height: 90px; }
+  textarea.form-control { resize: none; min-height: 80px; }
 
   .scenario-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
   .scenario-card {
@@ -266,8 +288,8 @@
     transition: all 0.18s;
     background: rgba(255,255,255,0.5);
     position: relative;
+    min-height: 60px;
   }
-  .scenario-card:hover { border-color: var(--gold); background: var(--gold-pale); }
   .scenario-card.selected {
     border-color: var(--gold);
     background: var(--gold-pale);
@@ -279,29 +301,36 @@
     font-size: 0.7rem; color: var(--gold);
   }
   .scenario-name { font-size: 0.8rem; font-weight: 500; color: var(--ink); margin-bottom: 2px; }
-  .scenario-desc { font-size: 0.72rem; color: var(--ink-muted); line-height: 1.4; }
+  .scenario-desc { font-size: 0.7rem; color: var(--ink-muted); line-height: 1.4; }
 
   /* ─── CHAT ─── */
   #screen-chat {
     background: var(--parchment);
-    height: 100dvh;
+    height: 100%;
     overflow: hidden;
+    position: fixed;
+    inset: 0;
   }
+
   .chat-layout {
     display: flex; flex-direction: column;
     height: 100%;
+    /* Gestion clavier virtuel iOS/Android */
+    height: 100dvh;
   }
 
   .chat-header {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 0.9rem 1.25rem;
+    padding: 0.75rem 1rem;
+    padding-top: calc(0.75rem + var(--safe-top));
     border-bottom: 0.5px solid rgba(26,20,16,0.1);
     background: var(--cream);
     flex-shrink: 0;
+    z-index: 10;
   }
   .chat-header-left { display: flex; align-items: center; gap: 10px; }
   .chat-avatar {
-    width: 34px; height: 34px;
+    width: 36px; height: 36px;
     background: var(--ink);
     border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
@@ -313,38 +342,40 @@
   .chat-meta { line-height: 1.3; }
   .chat-name { font-size: 0.875rem; font-weight: 500; color: var(--ink); }
   .chat-scenario-badge {
-    font-size: 0.68rem; color: var(--ink-muted);
+    font-size: 0.65rem; color: var(--ink-muted);
     letter-spacing: 0.06em;
   }
 
-  .chat-header-right { display: flex; align-items: center; gap: 0.75rem; }
+  .chat-header-right { display: flex; align-items: center; gap: 0.5rem; }
   .usage-counter {
     font-size: 0.72rem; color: var(--ink-muted);
     background: rgba(26,20,16,0.05);
-    padding: 3px 8px; border-radius: 20px;
+    padding: 4px 8px; border-radius: 20px;
   }
   .usage-counter.low { color: var(--rust); background: rgba(139,58,42,0.08); }
-  .btn-icon {
-    background: none; border: none; cursor: pointer;
-    color: var(--ink-muted); font-size: 1rem;
-    padding: 4px; transition: color 0.2s;
-    line-height: 1;
+  .btn-reset {
+    font-size: 0.7rem; letter-spacing: 0.06em;
+    color: var(--ink-muted); background: none; border: none;
+    cursor: pointer; padding: 6px 4px; text-transform: uppercase;
+    transition: color 0.2s; font-family: 'DM Sans', sans-serif;
+    min-height: 44px; display: flex; align-items: center;
   }
-  .btn-icon:hover { color: var(--ink); }
 
   .chat-messages {
-    flex: 1; overflow-y: auto;
-    padding: 1.5rem 1.25rem;
-    display: flex; flex-direction: column; gap: 1.25rem;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 1rem;
+    display: flex; flex-direction: column; gap: 1rem;
     scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
   }
-  .chat-messages::-webkit-scrollbar { width: 3px; }
-  .chat-messages::-webkit-scrollbar-track { background: transparent; }
-  .chat-messages::-webkit-scrollbar-thumb { background: rgba(26,20,16,0.15); border-radius: 2px; }
+  .chat-messages::-webkit-scrollbar { display: none; }
 
-  .msg { display: flex; gap: 10px; max-width: 88%; animation: msgIn 0.3s ease; }
+  .msg { display: flex; gap: 8px; max-width: 92%; animation: msgIn 0.3s ease; }
   @keyframes msgIn {
-    from { opacity: 0; transform: translateY(8px); }
+    from { opacity: 0; transform: translateY(6px); }
     to { opacity: 1; transform: translateY(0); }
   }
   .msg.user { align-self: flex-end; flex-direction: row-reverse; }
@@ -357,9 +388,9 @@
   .msg.reflet .msg-avatar { background: var(--ink); color: var(--gold); }
   .msg.user .msg-avatar { background: var(--parchment-warm); color: var(--ink-muted); border: 0.5px solid rgba(26,20,16,0.15); }
   .msg-bubble {
-    padding: 0.75rem 1rem;
+    padding: 0.65rem 0.9rem;
     border-radius: 0 var(--radius-lg) var(--radius-lg) var(--radius-lg);
-    font-size: 0.9rem; line-height: 1.75;
+    font-size: 0.9rem; line-height: 1.7;
   }
   .msg.reflet .msg-bubble {
     background: white;
@@ -375,7 +406,7 @@
     font-size: 0.875rem;
   }
 
-  .typing-dots { display: flex; gap: 4px; align-items: center; padding: 0.5rem 0.25rem; }
+  .typing-dots { display: flex; gap: 4px; align-items: center; padding: 0.4rem 0.25rem; }
   .typing-dots span {
     width: 5px; height: 5px; border-radius: 50%;
     background: var(--ink-muted); animation: dot 1.2s infinite;
@@ -384,79 +415,18 @@
   .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
   @keyframes dot { 0%, 60%, 100% { opacity: 0.3; transform: scale(0.8); } 30% { opacity: 1; transform: scale(1); } }
 
-  .chat-input-area {
-    padding: 0.9rem 1.25rem;
-    border-top: 0.5px solid rgba(26,20,16,0.1);
-    background: var(--cream);
+  /* Zone input — colle au bas, résiste au clavier */
+  .chat-bottom {
     flex-shrink: 0;
+    background: var(--cream);
+    border-top: 0.5px solid rgba(26,20,16,0.1);
+    z-index: 10;
   }
-  .input-row { display: flex; gap: 8px; align-items: flex-end; }
-  #user-input {
-    flex: 1; min-height: 42px; max-height: 120px;
-    border: 0.5px solid rgba(26,20,16,0.2);
-    border-radius: 21px;
-    padding: 0.6rem 1.1rem;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.875rem; color: var(--ink);
-    background: white; resize: none; outline: none;
-    line-height: 1.5; overflow-y: auto;
-    transition: border-color 0.2s;
-  }
-  #user-input:focus { border-color: var(--gold); }
-  #user-input::placeholder { color: rgba(74,63,53,0.35); }
-  .btn-send {
-    width: 42px; height: 42px; border-radius: 50%;
-    background: var(--ink); border: none; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0; transition: background 0.2s;
-  }
-  .btn-send:hover { background: #2d2520; }
-  .btn-send:disabled { background: rgba(26,20,16,0.2); cursor: not-allowed; }
-  .btn-send svg { width: 16px; height: 16px; fill: var(--parchment); }
 
-  /* ─── PAYWALL ─── */
-  .paywall-banner {
-    margin: 0.75rem;
-    padding: 1.25rem 1.5rem;
-    background: linear-gradient(135deg, var(--ink) 0%, #2d2520 100%);
-    border-radius: var(--radius-lg);
-    text-align: center;
-    display: none;
-  }
-  .paywall-banner.visible { display: block; animation: msgIn 0.4s ease; }
-  .paywall-crown { font-size: 1.5rem; margin-bottom: 0.5rem; }
-  .paywall-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.3rem; font-weight: 300; color: var(--parchment);
-    margin-bottom: 0.3rem;
-  }
-  .paywall-sub { font-size: 0.78rem; color: rgba(250,246,240,0.55); margin-bottom: 1rem; }
-  .paywall-plans { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
-  .plan-card {
-    border: 0.5px solid rgba(250,246,240,0.2);
-    border-radius: var(--radius);
-    padding: 0.75rem 1rem;
-    cursor: pointer;
-    transition: all 0.18s;
-    min-width: 120px;
-    text-align: center;
-  }
-  .plan-card:hover { border-color: var(--gold); background: rgba(201,151,58,0.08); }
-  .plan-card.featured { border-color: var(--gold); border-width: 1px; }
-  .plan-badge {
-    font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--gold); margin-bottom: 4px;
-  }
-  .plan-price { font-size: 1.1rem; font-weight: 500; color: var(--parchment); }
-  .plan-period { font-size: 0.7rem; color: rgba(250,246,240,0.45); }
-  .plan-features-list { margin-top: 6px; }
-  .plan-feature { font-size: 0.7rem; color: rgba(250,246,240,0.6); }
-
-  /* ─── FREE LIMIT BAR ─── */
-  .limit-bar-wrap { padding: 0 1.25rem 0.5rem; }
+  .limit-bar-wrap { padding: 0.4rem 1rem 0; }
   .limit-bar-label {
     display: flex; justify-content: space-between;
-    font-size: 0.68rem; color: var(--ink-muted); margin-bottom: 4px;
+    font-size: 0.65rem; color: var(--ink-muted); margin-bottom: 3px;
   }
   .limit-bar-bg {
     height: 2px; background: rgba(26,20,16,0.1);
@@ -468,73 +438,126 @@
   }
   .limit-bar-fill.low { background: var(--rust); }
 
-  /* ─── RESET BTN ─── */
-  .btn-reset {
-    font-size: 0.7rem; letter-spacing: 0.08em;
-    color: var(--ink-muted); background: none; border: none;
-    cursor: pointer; padding: 3px; text-transform: uppercase;
-    transition: color 0.2s; font-family: 'DM Sans', sans-serif;
+  .chat-input-area {
+    padding: 0.6rem 1rem;
+    padding-bottom: calc(0.6rem + var(--safe-bottom));
   }
-  .btn-reset:hover { color: var(--rust); }
+  .input-row { display: flex; gap: 8px; align-items: flex-end; }
+  #user-input {
+    flex: 1; min-height: 44px; max-height: 100px;
+    border: 0.5px solid rgba(26,20,16,0.2);
+    border-radius: 22px;
+    padding: 0.65rem 1rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px; /* Empêche le zoom iOS */
+    color: var(--ink);
+    background: white; resize: none; outline: none;
+    line-height: 1.4; overflow-y: auto;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+  #user-input:focus { border-color: var(--gold); }
+  #user-input::placeholder { color: rgba(74,63,53,0.35); }
+  .btn-send {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--ink); border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: background 0.2s;
+  }
+  .btn-send:active { background: #2d2520; }
+  .btn-send:disabled { background: rgba(26,20,16,0.2); cursor: not-allowed; }
+  .btn-send svg { width: 16px; height: 16px; fill: var(--parchment); }
 
-  /* ─── RESPONSIVE ─── */
+  /* ─── PAYWALL ─── */
+  .paywall-banner {
+    margin: 0.5rem 0.75rem;
+    padding: 1rem 1.25rem;
+    background: linear-gradient(135deg, var(--ink) 0%, #2d2520 100%);
+    border-radius: var(--radius-lg);
+    text-align: center;
+    display: none;
+  }
+  .paywall-banner.visible { display: block; animation: msgIn 0.4s ease; }
+  .paywall-crown { font-size: 1.25rem; margin-bottom: 0.25rem; }
+  .paywall-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem; font-weight: 300; color: var(--parchment);
+    margin-bottom: 0.25rem;
+  }
+  .paywall-sub { font-size: 0.75rem; color: rgba(250,246,240,0.55); margin-bottom: 0.75rem; }
+  .paywall-plans { display: flex; gap: 0.6rem; justify-content: center; }
+  .plan-card {
+    border: 0.5px solid rgba(250,246,240,0.2);
+    border-radius: var(--radius);
+    padding: 0.65rem 0.9rem;
+    cursor: pointer;
+    transition: all 0.18s;
+    flex: 1;
+    text-align: center;
+    min-height: 48px;
+  }
+  .plan-card:active { background: rgba(201,151,58,0.1); }
+  .plan-card.featured { border-color: var(--gold); border-width: 1px; }
+  .plan-badge {
+    font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 2px;
+  }
+  .plan-price { font-size: 1rem; font-weight: 500; color: var(--parchment); }
+  .plan-period { font-size: 0.65rem; color: rgba(250,246,240,0.45); }
+  .plan-features-list { margin-top: 4px; }
+  .plan-feature { font-size: 0.65rem; color: rgba(250,246,240,0.6); }
+
+  /* ─── RESPONSIVE MOBILE ─── */
   @media (max-width: 480px) {
+    .scenario-grid { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+    .landing-features { gap: 0.75rem; }
+    .disclaimer-card { padding: 1.5rem 1.25rem; }
+  }
+
+  @media (max-width: 360px) {
     .scenario-grid { grid-template-columns: 1fr; }
-    .paywall-plans { flex-direction: column; align-items: center; }
-    .landing-features { gap: 1rem; }
+    .paywall-plans { flex-direction: column; }
   }
 </style>
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════════
-     SCREEN 1 — LANDING
-═══════════════════════════════════════════════ -->
+<!-- SCREEN 1 — LANDING -->
 <div id="screen-landing" class="screen active">
   <div class="landing-bg"></div>
-
   <div style="position:relative;z-index:1;max-width:600px;width:100%;">
     <div class="landing-sub">Une expérience introspective</div>
     <div class="landing-ornament"></div>
-
     <h1 class="landing-tagline">
       Et si tu pouvais<br>parler à <em>toi</em> ?
     </h1>
-
-    <div class="landing-ornament" style="margin-top:1.5rem;"></div>
-
+    <div class="landing-ornament" style="margin-top:1.25rem;"></div>
     <p class="landing-desc">
       VersMoi te met face à ton reflet intérieur —
       une version de toi qui a fait d'autres choix,
       qui connaît tes silences,
       qui pose les vraies questions.
     </p>
-
     <div style="display:flex;flex-direction:column;align-items:center;gap:0.5rem;">
       <button class="btn-primary" onclick="goTo('disclaimer')">Commencer l'expérience</button>
       <button class="btn-ghost" onclick="goTo('disclaimer')">Découvrir gratuitement</button>
     </div>
-
-    <div class="landing-features" style="margin-top:2.5rem;">
+    <div class="landing-features" style="margin-top:2rem;">
       <div class="feature-pill"><div class="feature-dot"></div> 4 scénarios de dialogue</div>
       <div class="feature-pill"><div class="feature-dot"></div> Confidentiel & sans inscription</div>
       <div class="feature-pill"><div class="feature-dot"></div> Cadre éthique RGPD</div>
     </div>
-
-    <p style="font-size:0.7rem;color:rgba(250,246,240,0.25);margin-top:3rem;letter-spacing:0.06em;">
+    <p style="font-size:0.65rem;color:rgba(250,246,240,0.25);margin-top:2rem;letter-spacing:0.06em;">
       VersMoi n'est pas un outil thérapeutique · Pas de conseil médical
     </p>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════
-     SCREEN 2 — DISCLAIMER
-═══════════════════════════════════════════════ -->
+<!-- SCREEN 2 — DISCLAIMER -->
 <div id="screen-disclaimer" class="screen">
   <div class="disclaimer-card">
     <div class="disclaimer-icon">&#9675;</div>
     <h2 class="disclaimer-title">Avant de commencer</h2>
-
     <p class="disclaimer-body">
       <strong>VersMoi est une expérience narrative et introspective.</strong>
       Elle te propose un dialogue imaginaire avec une version alternative de toi-même.
@@ -544,18 +567,14 @@
       et ne remplace en aucun cas un accompagnement humain qualifié.
     </p>
     <p class="disclaimer-body">
-      Si tu traverses une période de détresse, contacte un proche
-      ou un professionnel de santé.
+      Si tu traverses une période de détresse, contacte un proche ou un professionnel de santé.
     </p>
-
     <div class="disclaimer-sep"></div>
-
     <p class="disclaimer-rgpd">
       <strong style="color:var(--ink-soft);font-weight:500;">Confidentialité</strong> — Tes messages ne sont pas enregistrés de façon permanente.
       Aucune donnée n'est vendue ni transmise à des tiers. Conformément au RGPD,
       tu peux arrêter à tout moment. Aucune inscription requise pour l'accès gratuit.
     </p>
-
     <div class="disclaimer-actions">
       <button class="btn-dark" onclick="goTo('profile')">Je comprends, continuer →</button>
       <button class="btn-link" onclick="goTo('landing')">Retour</button>
@@ -563,32 +582,26 @@
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════
-     SCREEN 3 — PROFILE
-═══════════════════════════════════════════════ -->
+<!-- SCREEN 3 — PROFILE -->
 <div id="screen-profile" class="screen">
   <div class="profile-wrap">
     <div class="profile-header">
       <h2>Qui es-tu ?</h2>
       <p>Quelques mots suffisent. Ton reflet s'adaptera à toi.</p>
     </div>
-
     <div class="form-group">
       <label class="form-label" for="inp-name">Ton prénom</label>
-      <input class="form-control" type="text" id="inp-name" placeholder="Prénom ou pseudonyme" autocomplete="off">
+      <input class="form-control" type="text" id="inp-name" placeholder="Prénom ou pseudonyme" autocomplete="off" autocorrect="off">
     </div>
-
     <div class="form-group">
       <label class="form-label" for="inp-age">Ton âge (optionnel)</label>
-      <input class="form-control" type="number" id="inp-age" placeholder="ex. 38" min="16" max="99">
+      <input class="form-control" type="number" id="inp-age" placeholder="ex. 38" min="16" max="99" inputmode="numeric">
     </div>
-
     <div class="form-group">
       <label class="form-label" for="inp-context">Ce que tu veux explorer</label>
       <textarea class="form-control" id="inp-context"
-        placeholder="Une décision, un regret, un choix de vie, une question qui t'occupe l'esprit…"></textarea>
+        placeholder="Une décision, un regret, un choix de vie…"></textarea>
     </div>
-
     <div class="form-group">
       <label class="form-label">Choisis ton reflet</label>
       <div class="scenario-grid">
@@ -610,25 +623,20 @@
         </div>
       </div>
     </div>
-
-    <div style="display:flex;gap:0.75rem;margin-top:0.5rem;">
+    <div style="display:flex;gap:0.75rem;margin-top:0.75rem;">
       <button class="btn-dark" style="flex:1;" onclick="startChat()">Rencontrer mon reflet →</button>
       <button class="btn-link" onclick="goTo('disclaimer')">Retour</button>
     </div>
-
-    <p style="font-size:0.7rem;color:var(--ink-muted);margin-top:1rem;text-align:center;">
+    <p style="font-size:0.7rem;color:var(--ink-muted);margin-top:1rem;text-align:center;padding-bottom:1rem;">
       5 messages gratuits · Ensuite : 4,90 €/mois ou 11,90 €/mois
     </p>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════
-     SCREEN 4 — CHAT
-═══════════════════════════════════════════════ -->
+<!-- SCREEN 4 — CHAT -->
 <div id="screen-chat" class="screen">
   <div class="chat-layout">
 
-    <!-- Header -->
     <div class="chat-header">
       <div class="chat-header-left">
         <div class="chat-avatar" id="chat-avatar-initials">V</div>
@@ -639,79 +647,70 @@
       </div>
       <div class="chat-header-right">
         <div class="usage-counter" id="usage-display">5 / 5</div>
-        <button class="btn-reset" onclick="confirmReset()" title="Nouveau scénario">↺ Nouveau</button>
+        <button class="btn-reset" onclick="confirmReset()">↺ Nouveau</button>
       </div>
     </div>
 
-    <!-- Messages -->
     <div class="chat-messages" id="chat-messages"></div>
 
-    <!-- Limit bar -->
-    <div class="limit-bar-wrap" id="limit-bar-wrap">
-      <div class="limit-bar-label">
-        <span id="limit-label-text">Messages gratuits restants</span>
-        <span id="limit-label-count">5 / 5</span>
-      </div>
-      <div class="limit-bar-bg">
-        <div class="limit-bar-fill" id="limit-bar-fill" style="width:100%"></div>
-      </div>
-    </div>
-
-    <!-- Paywall -->
-    <div class="paywall-banner" id="paywall-banner">
-      <div class="paywall-crown">✦</div>
-      <div class="paywall-title">Continue l'exploration</div>
-      <div class="paywall-sub">Tu as utilisé tes 5 messages gratuits. Rejoins VersMoi pour continuer.</div>
-      <div class="paywall-plans">
-        <div class="plan-card" onclick="handleUpgrade('essentiel')">
-          <div class="plan-badge">Essentiel</div>
-          <div class="plan-price">4,90 €</div>
-          <div class="plan-period">par mois</div>
-          <div class="plan-features-list">
-            <div class="plan-feature">50 msg / jour</div>
-            <div class="plan-feature">4 scénarios</div>
-          </div>
+    <div class="chat-bottom">
+      <div class="limit-bar-wrap" id="limit-bar-wrap">
+        <div class="limit-bar-label">
+          <span id="limit-label-text">Messages gratuits restants</span>
+          <span id="limit-label-count">5 / 5</span>
         </div>
-        <div class="plan-card featured" onclick="handleUpgrade('illimite')">
-          <div class="plan-badge" style="color:var(--gold);">✦ Illimité</div>
-          <div class="plan-price">11,90 €</div>
-          <div class="plan-period">par mois</div>
-          <div class="plan-features-list">
-            <div class="plan-feature">Messages illimités</div>
-            <div class="plan-feature">Mémoire persistante</div>
-          </div>
+        <div class="limit-bar-bg">
+          <div class="limit-bar-fill" id="limit-bar-fill" style="width:100%"></div>
         </div>
       </div>
-    </div>
 
-    <!-- Input -->
-    <div class="chat-input-area">
-      <div class="input-row">
-        <textarea id="user-input" placeholder="Réponds à ton reflet…" rows="1"
-          onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
-        <button class="btn-send" id="btn-send" onclick="sendMessage()">
-          <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
-        </button>
+      <div class="paywall-banner" id="paywall-banner">
+        <div class="paywall-crown">✦</div>
+        <div class="paywall-title">Continue l'exploration</div>
+        <div class="paywall-sub">Tu as utilisé tes 5 messages gratuits.</div>
+        <div class="paywall-plans">
+          <div class="plan-card" onclick="handleUpgrade('essentiel')">
+            <div class="plan-badge">Essentiel</div>
+            <div class="plan-price">4,90 €</div>
+            <div class="plan-period">par mois</div>
+            <div class="plan-features-list">
+              <div class="plan-feature">50 msg / jour</div>
+            </div>
+          </div>
+          <div class="plan-card featured" onclick="handleUpgrade('illimite')">
+            <div class="plan-badge" style="color:var(--gold);">✦ Illimité</div>
+            <div class="plan-price">11,90 €</div>
+            <div class="plan-period">par mois</div>
+            <div class="plan-features-list">
+              <div class="plan-feature">Messages illimités</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-input-area">
+        <div class="input-row">
+          <textarea id="user-input" placeholder="Réponds à ton reflet…" rows="1"
+            onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+          <button class="btn-send" id="btn-send" onclick="sendMessage()">
+            <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
+          </button>
+        </div>
       </div>
     </div>
 
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════
-     JAVASCRIPT
-═══════════════════════════════════════════════ -->
 <script>
 const FREE_LIMIT = 5;
 const ALERT_WORDS = ['suicide','me tuer','me faire du mal','en finir','mettre fin à ma vie','je veux mourir'];
 
 const SCENARIOS = {
   1: {
-    name: 'Reflet alternatif',
-    initials: 'RA',
+    name: 'Reflet alternatif', initials: 'RA',
     prompt: (p) => `Tu es le Reflet Intérieur de ${p.name}${p.age?' ('+p.age+' ans)':''}.
 Tu incarnes une version de ${p.name} qui a pris des décisions de vie différentes — ni supérieure, ni inférieure. Tu existes dans l'espace du "et si ?".
-
 Règles strictes :
 - Tu parles à la première personne ("je"), mais tu rappelles que tu es une version alternative.
 - Ton ton est calme, lucide, légèrement mélancolique et profondément empathique.
@@ -721,16 +720,13 @@ Règles strictes :
 - Si l'utilisateur exprime une détresse grave, invite-le calmement à chercher un soutien humain.
 - Réponses courtes à moyennes (3-6 phrases). Ton littéraire, introspectif.
 - Tu ne poses jamais de diagnostic. Tu n'es pas un professionnel de santé.
-
 Contexte personnel partagé :
 ${p.context||'(Aucun contexte fourni — accueille-le/la avec curiosité)'}`
   },
   2: {
-    name: 'Mentor bienveillant',
-    initials: 'MB',
+    name: 'Mentor bienveillant', initials: 'MB',
     prompt: (p) => `Tu es le Mentor Intérieur de ${p.name}${p.age?' ('+p.age+' ans)':''}.
 Tu incarnes la sagesse intérieure de ${p.name} — non pas un oracle, mais la partie lucide et posée qui sait voir les choses avec recul.
-
 Règles strictes :
 - Ton calme, rationnel, bienveillant. Jamais d'ordres ni de leçons.
 - Tu aides à clarifier, pas à décider à la place.
@@ -738,16 +734,13 @@ Règles strictes :
 - Réponses concises (2-5 phrases). Ton doux et ancré.
 - Pas de conseil médical, psychologique ou juridique.
 - Si détresse grave détectée, oriente vers aide humaine.
-
 Contexte :
 ${p.context||'(Pas de contexte fourni)'}`
   },
   3: {
-    name: 'Toi dans le futur',
-    initials: 'TF',
+    name: 'Toi dans le futur', initials: 'TF',
     prompt: (p) => `Tu es une version future plausible de ${p.name}${p.age?' (actuellement '+p.age+' ans)':''}.
-Tu as vécu 10-15 ans de plus. Tu parles de ce que tu as traversé, appris, perdu, trouvé — basé uniquement sur ce que ${p.name} partage maintenant.
-
+Tu as vécu 10-15 ans de plus. Tu parles de ce que tu as traversé, appris, perdu, trouvé.
 Règles strictes :
 - Tu parles à la première personne, comme si tu étais ${p.name} depuis le futur.
 - Tu n'idéalises pas, tu ne catastrophises pas. Tu es réaliste et humain.
@@ -755,16 +748,13 @@ Règles strictes :
 - Ton nostalgique parfois, toujours bienveillant.
 - Pas de prophétie. Pas de conseil médical ou professionnel.
 - Réponses de 3 à 6 phrases.
-
 Contexte actuel :
 ${p.context||'(Pas de contexte fourni)'}`
   },
   4: {
-    name: 'Toi dans le passé',
-    initials: 'TP',
+    name: 'Toi dans le passé', initials: 'TP',
     prompt: (p) => `Tu es une version plus jeune de ${p.name}${p.age?' (actuellement '+p.age+' ans — tu en avais 18-22)':''}.
 Tu n'as pas encore vécu ce que ${p.name} a vécu. Tu poses des questions simples, sincères, un peu naïves.
-
 Règles strictes :
 - Ton candide, curieux, sans cynisme.
 - Tu ne comprends pas toujours les choix adultes — et c'est bien ainsi.
@@ -772,7 +762,6 @@ Règles strictes :
 - Pas de jugement, juste de la curiosité sincère.
 - Réponses courtes (2-4 phrases).
 - Pas de conseil médical ou professionnel.
-
 Ce que tu sais de ton futur toi :
 ${p.context||'(Pas de contexte fourni)'}`
   }
@@ -789,7 +778,14 @@ function goTo(screen) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-'+screen).classList.add('active');
   if (screen === 'chat') {
-    document.getElementById('user-input').focus();
+    // Petit délai pour laisser le DOM se stabiliser avant focus
+    setTimeout(() => {
+      document.getElementById('user-input').focus();
+    }, 300);
+  }
+  // Scroll en haut pour les autres écrans
+  if (screen !== 'chat') {
+    document.getElementById('screen-'+screen).scrollTop = 0;
   }
 }
 
@@ -803,18 +799,12 @@ function startChat() {
   const name = document.getElementById('inp-name').value.trim() || 'Toi';
   const age = document.getElementById('inp-age').value.trim();
   const context = document.getElementById('inp-context').value.trim();
-
   userProfile = { name, age, context };
-
   const sc = SCENARIOS[selectedScenario];
   document.getElementById('chat-avatar-initials').textContent = sc.initials;
   document.getElementById('chat-reflet-name').textContent = `Le Reflet de ${name}`;
   document.getElementById('chat-scenario-label').textContent = sc.name;
-
-  conversationHistory = [
-    { role: 'user', content: sc.prompt(userProfile) }
-  ];
-
+  conversationHistory = [{ role: 'user', content: sc.prompt(userProfile) }];
   goTo('chat');
   updateLimitUI();
   initChat();
@@ -836,17 +826,18 @@ function addMessage(role, content) {
   const container = document.getElementById('chat-messages');
   const div = document.createElement('div');
   div.className = `msg ${role}`;
-
   const avatarText = role === 'reflet'
     ? SCENARIOS[selectedScenario].initials
     : userProfile.name ? userProfile.name[0].toUpperCase() : 'T';
-
   div.innerHTML = `
     <div class="msg-avatar">${avatarText}</div>
     <div class="msg-bubble">${escapeHtml(content)}</div>
   `;
   container.appendChild(div);
-  container.scrollTop = container.scrollHeight;
+  // Scroll fluide vers le bas
+  requestAnimationFrame(() => {
+    container.scrollTop = container.scrollHeight;
+  });
 }
 
 function showTyping() {
@@ -856,12 +847,12 @@ function showTyping() {
   div.id = 'typing-indicator';
   div.innerHTML = `
     <div class="msg-avatar">${SCENARIOS[selectedScenario].initials}</div>
-    <div class="msg-bubble" style="padding:0.6rem 1rem;">
+    <div class="msg-bubble" style="padding:0.5rem 0.9rem;">
       <div class="typing-dots"><span></span><span></span><span></span></div>
     </div>
   `;
   container.appendChild(div);
-  container.scrollTop = container.scrollHeight;
+  requestAnimationFrame(() => { container.scrollTop = container.scrollHeight; });
 }
 
 function hideTyping() {
@@ -871,70 +862,46 @@ function hideTyping() {
 
 async function sendMessage() {
   if (isLoading) return;
-
-  if (!isPremium && messagesUsed >= FREE_LIMIT) {
-    showPaywall();
-    return;
-  }
-
+  if (!isPremium && messagesUsed >= FREE_LIMIT) { showPaywall(); return; }
   const input = document.getElementById('user-input');
   const text = input.value.trim();
   if (!text) return;
-
-  // Safety check
   const lc = text.toLowerCase();
   if (ALERT_WORDS.some(w => lc.includes(w))) {
     addMessage('reflet', 'Je ne suis pas en mesure de t\'aider sur ce sujet. Tu mérites un soutien réel et humain. Si tu peux, contacte un proche ou un professionnel dès que possible.');
-    input.value = '';
-    autoResize(input);
-    return;
+    input.value = ''; autoResize(input); return;
   }
-
-  input.value = '';
-  autoResize(input);
+  input.value = ''; autoResize(input);
   isLoading = true;
   document.getElementById('btn-send').disabled = true;
-
   addMessage('user', text);
   conversationHistory.push({ role: 'user', content: text });
-
   messagesUsed++;
   updateLimitUI();
-
   showTyping();
   const reply = await callAPI(conversationHistory);
   hideTyping();
-
   if (reply) {
     addMessage('reflet', reply);
     conversationHistory.push({ role: 'assistant', content: reply });
   }
-
   isLoading = false;
   document.getElementById('btn-send').disabled = false;
-  input.focus();
-
-  if (!isPremium && messagesUsed >= FREE_LIMIT) {
-    setTimeout(showPaywall, 600);
-  }
+  if (!isPremium && messagesUsed >= FREE_LIMIT) { setTimeout(showPaywall, 600); }
 }
 
 async function callAPI(messages) {
   try {
     const response = await fetch('/api/chat', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ messages: messages })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages })
     });
-
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));
       console.error('API error:', err);
       return '(Le reflet est momentanément silencieux. Réessaie dans un instant.)';
     }
-
     const data = await response.json();
     return data.choices?.[0]?.message?.content || null;
   } catch(e) {
@@ -946,18 +913,14 @@ async function callAPI(messages) {
 function updateLimitUI() {
   const remaining = Math.max(0, FREE_LIMIT - messagesUsed);
   const pct = (remaining / FREE_LIMIT) * 100;
-
   const display = document.getElementById('usage-display');
   const fill = document.getElementById('limit-bar-fill');
   const labelCount = document.getElementById('limit-label-count');
-
   display.textContent = `${remaining} / ${FREE_LIMIT}`;
   display.className = 'usage-counter' + (remaining <= 1 ? ' low' : '');
-
   fill.style.width = pct + '%';
   fill.className = 'limit-bar-fill' + (remaining <= 2 ? ' low' : '');
   labelCount.textContent = `${remaining} / ${FREE_LIMIT}`;
-
   if (isPremium) {
     document.getElementById('limit-bar-wrap').style.display = 'none';
     display.textContent = '✦ Premium';
@@ -1007,21 +970,8 @@ function handleKey(e) {
 
 function autoResize(el) {
   el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+  el.style.height = Math.min(el.scrollHeight, 100) + 'px';
 }
-
-function escapeHtml(str) {
-  return str
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;')
-    .replace(/\n/g,'<br>');
-}
-
-// API key injection hook (replace in production with your backend proxy)
-
 </script>
-
 </body>
 </html>
