@@ -30,5 +30,7 @@ app.post('/api/chat', async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3000;app.listen(PORT, () = console.log('VersMoi tourne sur le port ' + PORT); }); 
-app.listen(PORT, () = console.log('VersMoi tourne sur le port ' + PORT); }); 
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`VersMoi tourne sur http://localhost:${PORT}`);
+});
