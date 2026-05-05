@@ -439,10 +439,13 @@
   .limit-bar-fill.low { background: var(--rust); }
 
   .chat-input-area {
-    padding: 0.6rem 1rem;
+    padding: 0.6rem 0.75rem;
+    overflow: hidden;
+    width: 100%;
+    box-sizing: border-box;
     padding-bottom: calc(0.6rem + var(--safe-bottom));
   }
-  .input-row { display: flex; gap: 8px; align-items: flex-end; }
+  .input-row { display: flex; gap: 8px; align-items: flex-end; width: 100%; overflow: hidden; }
   #user-input {
     flex: 1; min-height: 44px; max-height: 100px;
     border: 0.5px solid rgba(26,20,16,0.2);
