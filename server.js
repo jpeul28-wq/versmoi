@@ -1,43 +1,45 @@
-require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const app = express();
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.post('/api/chat', async (req, res) => {
   console.log('=== Message reçu ===');
   const { messages } = req.body;
+
   try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        max_tokens: 400,
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1024,
         messages: messages
       })
     });
-   const data = await response.json();
 
-const reply = data?.choices?.[0]?.message?.content;
+    const data = await response.json();
 
-console.log("Réponse IA :", reply);
-
-res.json({
-  choices: [
-    {
-      message: {
-        content: reply || "Pas de réponse."
-      }
+    if (!response.ok) {
+      console.error('Erreur API Anthropic:', data);
+      return res.status(500).json({ error: 'Erreur API Anthropic' });
     }
-  ]
-});
+
+    const reply = data.content?.[0]?.text || null;
+    console.log('Réponse IA :', reply);
+
+    res.json({
+      choices: [{ message: { content: reply || 'Pas de réponse.' } }]
+    });
+
   } catch (error) {
-    console.error('Erreur:', error);
+    console.error('Erreur serveur:', error);
     res.status(500).json({ error: 'Erreur serveur.' });
   }
 });
