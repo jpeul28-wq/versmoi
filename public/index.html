@@ -900,16 +900,20 @@ async function callAPI(messages) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ messages })
     });
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      console.error('API error:', err);
-      return '(Le reflet est momentanément silencieux. Réessaie dans un instant.)';
-    }
+
     const data = await response.json();
-    return data.choices?.[0]?.message?.content || null;
+
+    console.log("DATA:", data);
+
+    const reply = data.choices?.[0]?.message?.content;
+
+    console.log("REPLY:", reply);
+
+    return reply;
+
   } catch(e) {
     console.error(e);
-    return '(Connexion perdue. Vérifie ta connexion et réessaie.)';
+    return '(Connexion perdue)';
   }
 }
 

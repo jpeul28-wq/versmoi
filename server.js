@@ -21,9 +21,21 @@ app.post('/api/chat', async (req, res) => {
         messages: messages
       })
     });
-    const data = await response.json();
-    console.log('Réponse API:', JSON.stringify(data).substring(0, 100));
-    res.json(data);
+   const data = await response.json();
+
+const reply = data?.choices?.[0]?.message?.content;
+
+console.log("Réponse IA :", reply);
+
+res.json({
+  choices: [
+    {
+      message: {
+        content: reply || "Pas de réponse."
+      }
+    }
+  ]
+});
   } catch (error) {
     console.error('Erreur:', error);
     res.status(500).json({ error: 'Erreur serveur.' });
