@@ -41,7 +41,6 @@
     background: var(--parchment);
     color: var(--ink);
     overflow-x: hidden;
-    /* Empêche le zoom sur double-tap iOS */
     touch-action: manipulation;
   }
 
@@ -269,7 +268,7 @@
     border-radius: var(--radius);
     padding: 0.85rem 1rem;
     font-family: 'DM Sans', sans-serif;
-    font-size: 16px; /* Empêche le zoom iOS */
+    font-size: 16px;
     color: var(--ink);
     transition: border-color 0.2s;
     outline: none;
@@ -315,7 +314,6 @@
   .chat-layout {
     display: flex; flex-direction: column;
     height: 100%;
-    /* Gestion clavier virtuel iOS/Android */
     height: 100dvh;
   }
 
@@ -415,7 +413,6 @@
   .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
   @keyframes dot { 0%, 60%, 100% { opacity: 0.3; transform: scale(0.8); } 30% { opacity: 1; transform: scale(1); } }
 
-  /* Zone input — colle au bas, résiste au clavier */
   .chat-bottom {
     flex-shrink: 0;
     background: var(--cream);
@@ -452,7 +449,7 @@
     border-radius: 22px;
     padding: 0.65rem 1rem;
     font-family: 'DM Sans', sans-serif;
-    font-size: 16px; /* Empêche le zoom iOS */
+    font-size: 16px;
     color: var(--ink);
     background: white; resize: none; outline: none;
     line-height: 1.4; overflow-y: auto;
@@ -772,21 +769,29 @@ ${p.context||'(Pas de contexte fourni)'}`
 
 let userProfile = {};
 let selectedScenario = 1;
-let conversationHistory = [];
+let conversationHistory = [];  // Contient uniquement les vrais échanges user/assistant
+let currentSystemPrompt = ''; // System prompt séparé
 let messagesUsed = 0;
 let isPremium = false;
 let isLoading = false;
+
+function escapeHtml(text) {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
 
 function goTo(screen) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-'+screen).classList.add('active');
   if (screen === 'chat') {
-    // Petit délai pour laisser le DOM se stabiliser avant focus
     setTimeout(() => {
       document.getElementById('user-input').focus();
     }, 300);
   }
-  // Scroll en haut pour les autres écrans
   if (screen !== 'chat') {
     document.getElementById('screen-'+screen).scrollTop = 0;
   }
@@ -803,11 +808,15 @@ function startChat() {
   const age = document.getElementById('inp-age').value.trim();
   const context = document.getElementById('inp-context').value.trim();
   userProfile = { name, age, context };
+
   const sc = SCENARIOS[selectedScenario];
+  currentSystemPrompt = sc.prompt(userProfile); // ← stocké séparément
+  conversationHistory = []; // ← vide : pas de system prompt dedans
+
   document.getElementById('chat-avatar-initials').textContent = sc.initials;
   document.getElementById('chat-reflet-name').textContent = `Le Reflet de ${name}`;
   document.getElementById('chat-scenario-label').textContent = sc.name;
-  conversationHistory = [{ role: 'user', content: sc.prompt(userProfile) }];
+
   goTo('chat');
   updateLimitUI();
   initChat();
@@ -815,12 +824,12 @@ function startChat() {
 
 async function initChat() {
   showTyping();
-  const openingMsg = await callAPI([
-    { role: 'user', content: SCENARIOS[selectedScenario].prompt(userProfile) + '\n\nCommence par une première question ou observation d\'ouverture. Sois bref, poétique et intrigant.' }
-  ]);
+  // isInit=true : le serveur génère le message d'ouverture avec juste le system prompt
+  const openingMsg = await callAPI([], true);
   hideTyping();
   if (openingMsg) {
     addMessage('reflet', openingMsg);
+    // On ajoute la réponse d'ouverture dans l'historique comme message assistant
     conversationHistory.push({ role: 'assistant', content: openingMsg });
   }
 }
@@ -837,7 +846,6 @@ function addMessage(role, content) {
     <div class="msg-bubble">${escapeHtml(content)}</div>
   `;
   container.appendChild(div);
-  // Scroll fluide vers le bas
   requestAnimationFrame(() => {
     container.scrollTop = container.scrollHeight;
   });
@@ -866,50 +874,61 @@ function hideTyping() {
 async function sendMessage() {
   if (isLoading) return;
   if (!isPremium && messagesUsed >= FREE_LIMIT) { showPaywall(); return; }
+
   const input = document.getElementById('user-input');
   const text = input.value.trim();
   if (!text) return;
+
   const lc = text.toLowerCase();
   if (ALERT_WORDS.some(w => lc.includes(w))) {
     addMessage('reflet', 'Je ne suis pas en mesure de t\'aider sur ce sujet. Tu mérites un soutien réel et humain. Si tu peux, contacte un proche ou un professionnel dès que possible.');
     input.value = ''; autoResize(input); return;
   }
+
   input.value = ''; autoResize(input);
   isLoading = true;
   document.getElementById('btn-send').disabled = true;
+
   addMessage('user', text);
   conversationHistory.push({ role: 'user', content: text });
   messagesUsed++;
   updateLimitUI();
+
   showTyping();
-  const reply = await callAPI(conversationHistory);
+  const reply = await callAPI(conversationHistory, false);
   hideTyping();
+
   if (reply) {
     addMessage('reflet', reply);
     conversationHistory.push({ role: 'assistant', content: reply });
   }
+
   isLoading = false;
   document.getElementById('btn-send').disabled = false;
   if (!isPremium && messagesUsed >= FREE_LIMIT) { setTimeout(showPaywall, 600); }
 }
 
-async function callAPI(messages) {
+// ─── CORRECTION PRINCIPALE ───
+// systemPrompt envoyé séparément, messages contient uniquement les échanges
+async function callAPI(messages, isInit = false) {
   try {
     const response = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages })
+      body: JSON.stringify({
+        systemPrompt: currentSystemPrompt,  // ← system prompt séparé
+        messages: messages,                  // ← vrais échanges seulement
+        isInit: isInit                       // ← true pour le message d'ouverture
+      })
     });
 
     const data = await response.json();
-
-    console.log("DATA:", data);
+    console.log('DATA:', data);
 
     const reply = data.choices?.[0]?.message?.content;
+    console.log('REPLY:', reply);
 
-    console.log("REPLY:", reply);
-
-    return reply;
+    return reply || null;
 
   } catch(e) {
     console.error(e);
@@ -958,6 +977,7 @@ function handleUpgrade(plan) {
 function confirmReset() {
   if (confirm('Effacer cette conversation et recommencer un nouveau scénario ?')) {
     conversationHistory = [];
+    currentSystemPrompt = '';
     messagesUsed = 0;
     document.getElementById('chat-messages').innerHTML = '';
     document.getElementById('paywall-banner').classList.remove('visible');
